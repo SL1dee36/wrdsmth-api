@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import re
+import unicodedata
 
 def clean_text(text, remove_html=True, remove_punctuation=True, lowercase=True,
                remove_extra_spaces=True, remove_numbers=False, replace_urls=False,
-               replace_emails=False, custom_regex=None):
+               replace_emails=False, custom_regex=None, normalize_unicode=False):
     """
     Cleans text by removing or replacing unwanted characters and patterns.
 
@@ -18,6 +19,7 @@ def clean_text(text, remove_html=True, remove_punctuation=True, lowercase=True,
         replace_urls (bool, optional): Replace URLs with a placeholder. Defaults to False.
         replace_emails (bool, optional): Replace email addresses with a placeholder. Defaults to False.
         custom_regex (str, optional): Custom regular expression pattern to remove. Defaults to None.
+        normalize_unicode (bool, optional): Normalize Unicode characters. Defaults to False.
 
     Returns:
         str: Cleaned text.
@@ -43,6 +45,9 @@ def clean_text(text, remove_html=True, remove_punctuation=True, lowercase=True,
 
     if custom_regex:
         text = re.sub(custom_regex, '', text)
+
+    if normalize_unicode:
+        text = unicodedata.normalize('NFKC', text)
 
     if remove_extra_spaces:
         text = ' '.join(text.split())

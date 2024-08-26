@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
 
 def vectorize_text(text, method='tfidf', **kwargs):
     """
@@ -14,8 +18,21 @@ def vectorize_text(text, method='tfidf', **kwargs):
     Returns:
         array-like or sparse matrix: Vector representation of the text.
     """
+
     if method == 'tfidf':
         vectorizer = TfidfVectorizer(**kwargs)
         return vectorizer.fit_transform(text)
+    elif method == 'count':
+        vectorizer = CountVectorizer(**kwargs)
+        return vectorizer.fit_transform(text)
+    elif method == 'hashing':
+        vectorizer = HashingVectorizer(**kwargs)
+        return vectorizer.fit_transform(text)
+    elif method == 'pca':
+        vectorizer = PCA(**kwargs)
+        return vectorizer.fit_transform(text)
+    elif method == 'svd':
+        vectorizer = TruncatedSVD(**kwargs)
+        return vectorizer.fit_transform(text)
     else:
-        raise ValueError("Unsupported vectorization method. Currently only 'tfidf' is supported.")
+        raise ValueError(f"Unsupported vectorization method: {method}. Choose from 'tfidf', 'count', 'hashing', 'pca', or 'svd'.")

@@ -2,14 +2,12 @@
 
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
-import nltk
+import nltk, spacy
 
-nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
-nltk.download('stopwords')
 
-def lemmatize_text(text, pos_tags=None, lemmatizer_type='wordnet', custom_lemmatizer=None):
+def lemmatize_text(text, pos_tags=None, lemmatizer_type='wordnet', custom_lemmatizer=None, language='english'):
     """
     Lemmatizes text using various lemmatizers and POS tag options.
 
@@ -17,8 +15,9 @@ def lemmatize_text(text, pos_tags=None, lemmatizer_type='wordnet', custom_lemmat
         text (str or list): Text or list of tokens to lemmatize.
         pos_tags (list, optional): List of part-of-speech tags for each token. 
                                     If None, POS tags will be determined automatically.
-        lemmatizer_type (str, optional): Type of lemmatizer to use ('wordnet', 'custom'). Defaults to 'wordnet'.
+        lemmatizer_type (str, optional): Type of lemmatizer to use ('wordnet', 'spacy', 'custom'). Defaults to 'wordnet'.
         custom_lemmatizer (callable, optional): Custom lemmatizer function. Defaults to None.
+        language (str, optional): Language of the text. Defaults to 'english'.
 
     Returns:
         str or list: Text or list of tokens with words reduced to their lemmas.
@@ -36,6 +35,16 @@ def lemmatize_text(text, pos_tags=None, lemmatizer_type='wordnet', custom_lemmat
             if pos_tags is None:
                 pos_tags = get_wordnet_pos_tags(text)
             return [lemmatizer.lemmatize(token, pos=tag) for token, tag in zip(text, pos_tags)]
+        else:
+            raise TypeError("Input text must be a string or a list of tokens.")
+    elif lemmatizer_type == 'spacy':
+        
+        nlp = spacy.load(language)
+        if isinstance(text, str):
+            doc = nlp(text)
+            return " ".join([token.lemma_ for token in doc])
+        elif isinstance(text, list):
+            return [token.lemma_ for token in nlp(" ".join(text))]
         else:
             raise TypeError("Input text must be a string or a list of tokens.")
     elif lemmatizer_type == 'custom' and custom_lemmatizer:
