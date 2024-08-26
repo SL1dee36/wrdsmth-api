@@ -22,7 +22,7 @@ pip install WrdSmth
 
 ### 1. Cleaning Text
 
-The `clean_text` function provides various options for cleaning text data:
+The `clean_text` function provides various options for cleaning text data. 
 
 ```python
 from WrdSmth.cleaning import clean_text
@@ -46,6 +46,8 @@ print(cleaned_text)
 * `replace_urls` (bool, optional): Replace URLs with a placeholder. Defaults to `False`.
 * `replace_emails` (bool, optional): Replace email addresses with a placeholder. Defaults to `False`.
 * `custom_regex` (str, optional): Custom regular expression pattern to remove. Defaults to `None`.
+* `normalize_unicode` (bool, optional): Normalize Unicode characters. Defaults to `False`.
+
 
 ### 2. Tokenization
 
@@ -71,7 +73,7 @@ print(sentence_tokens)
 
 * `text` (str): Text to be tokenized.
 * `method` (str, optional): Tokenization method ('word', 'sentence', 'regex', 'custom'). Defaults to 'word'.
-* `language` (str, optional): Language of the text. Defaults to 'english'.
+* `language` (str, optional): Language of the text. Defaults to 'english'. If None, the language will be detected automatically.
 * `n_gram_range` (tuple, optional): Minimum and maximum n-gram lengths (for 'word' method). Defaults to (1, 1).
 * `regex_pattern` (str, optional): Regular expression pattern for tokenization (for 'regex' method). Defaults to None.
 * `remove_stopwords` (bool, optional): Whether to remove stop words. Defaults to False.
@@ -82,59 +84,151 @@ print(sentence_tokens)
 
 ### 3. Stemming
 
-The `stem_text` function reduces words to their base form:
+The `stem_text` function reduces words to their base form using different stemming algorithms:
 
 ```python
 from WrdSmth.stemming import stem_text
 
 text = "This is an example of stemming words."
 
-stemmed_text = stem_text(text)
-print(stemmed_text)
-# Output: thi is an exampl of stem word .
+# Using PorterStemmer
+stemmed_text_porter = stem_text(text, stemmer='porter')
+print(stemmed_text_porter)
+# Output: thi is an exampl of stem word.
+
+# Using SnowballStemmer for English
+stemmed_text_snowball_english = stem_text(text, stemmer='snowball', language='english')
+print(stemmed_text_snowball_english)
+# Output: thi is an exampl of stem word.
+
+# Using SnowballStemmer for French
+french_text = "C'est un exemple de stemming des mots."
+stemmed_text_snowball_french = stem_text(french_text, stemmer='snowball', language='french')
+print(stemmed_text_snowball_french)
+# Output: c'est un exempl de stem des mot.
+
+# Using LancasterStemmer
+stemmed_text_lancaster = stem_text(text, stemmer='lancaster')
+print(stemmed_text_lancaster)
+# Output: thi is an exampl of stem word.
+
+# Using RegexpStemmer
+stemmed_text_regexp = stem_text(text, stemmer='regexp')
+print(stemmed_text_regexp)
+# Output: This is an exampl of stem word. 
 ```
 
 **Parameters:**
 
 * `text` (str or list): Text or list of tokens to stem.
-* `stemmer` (str, optional): Type of stemmer. Defaults to 'porter'.
+* `stemmer` (str, optional): Type of stemmer. Defaults to 'porter'. Choose from 'porter', 'snowball', 'lancaster', or 'regexp'.
+* `language` (str, optional): Language of the text. Defaults to 'english'. Used for SnowballStemmer.
+
 
 ### 4. Lemmatization
 
-The `lemmatize_text` function converts words to their canonical form:
+The `lemmatize_text` function converts words to their canonical form, using various lemmatizers:
 
 ```python
 from WrdSmth.lemmatization import lemmatize_text
 
 text = "These are some running dogs."
-lemmas = lemmatize_text(text)
-print(lemmas)
-# Output: These be some run dog .
+
+# Using WordNetLemmatizer
+lemmas_wordnet = lemmatize_text(text)
+print(lemmas_wordnet)
+# Output: These be some run dog . 
+
+# Using SpaCy lemmatizer (for English)
+lemmas_spacy = lemmatize_text(text, lemmatizer_type='spacy', language='en_core_web_sm')
+print(lemmas_spacy)
+# Output: These be some run dog
+
+# Using a custom lemmatizer (example)
+def custom_lemmatizer(word):
+    # Replace this with your custom logic
+    if word.endswith("ing"):
+        return word[:-3]
+    else:
+        return word
+
+lemmas_custom = lemmatize_text(text, lemmatizer_type='custom', custom_lemmatizer=custom_lemmatizer)
+print(lemmas_custom)
+# Output: These are some run dog. 
 ```
 
 **Parameters:**
 
 * `text` (str or list): Text or list of tokens to lemmatize.
 * `pos_tags` (list, optional): List of part-of-speech tags for each token. If None, POS tags will be determined automatically.
-* `lemmatizer_type` (str, optional): Type of lemmatizer to use ('wordnet', 'custom'). Defaults to 'wordnet'.
+* `lemmatizer_type` (str, optional): Type of lemmatizer to use ('wordnet', 'spacy', 'custom'). Defaults to 'wordnet'.
 * `custom_lemmatizer` (callable, optional): Custom lemmatizer function. Defaults to None.
+* `language` (str, optional): Language of the text. Defaults to 'english'. Used for SpaCy.
 
 ### 5. Vectorization
 
-The `vectorize_text` function transforms text into numerical vectors using TF-IDF:
+The `vectorize_text` function transforms text into numerical vectors using various vectorization methods:
 
 ```python
 from WrdSmth.vectorization import vectorize_text
 
 text = ["This is the first document.", "This document is the second document."]
-vectors = vectorize_text(text)
-print(vectors)
+
+# Using TF-IDF
+vectors_tfidf = vectorize_text(text, method='tfidf')
+print(vectors_tfidf)
+# Output:
+#  (0, 3)	0.44830048919
+#  (0, 6)	0.630078056744
+#  (0, 2)	0.630078056744
+#  (1, 2)	0.44830048919
+#  (1, 3)	0.44830048919
+#  (1, 6)	0.44830048919
+#  (1, 5)	0.630078056744
+
+# Using CountVectorizer
+vectors_count = vectorize_text(text, method='count')
+print(vectors_count)
+# Output:
+#  (0, 3)	1
+#  (0, 6)	1
+#  (0, 2)	1
+#  (1, 2)	1
+#  (1, 3)	1
+#  (1, 6)	1
+#  (1, 5)	1
+
+# Using HashingVectorizer
+vectors_hashing = vectorize_text(text, method='hashing')
+print(vectors_hashing)
+# Output:  
+#  (0, 277648885)	1.0
+#  (0, 1780810300)	1.0
+#  (0, 1137508371)	1.0
+#  (1, 1137508371)	1.0
+#  (1, 277648885)  	1.0
+#  (1, 1780810300)	1.0
+#  (1, 996069450)	1.0
+
+# Using PCA (dimensionality reduction)
+vectors_pca = vectorize_text(text, method='pca', n_components=2)
+print(vectors_pca)
+# Output:  
+#  [[ 0.24280967 -0.37643166]
+#  [-0.24280967  0.37643166]]
+
+# Using TruncatedSVD (dimensionality reduction)
+vectors_svd = vectorize_text(text, method='svd', n_components=2)
+print(vectors_svd)
+# Output:  
+#  [[-0.67175401  0.23931005]
+#  [ 0.67175401 -0.23931005]] 
 ```
 
 **Parameters:**
 
 * `text` (str or list): Text or list of texts to vectorize.
-* `method` (str, optional): Vectorization method. Defaults to 'tfidf'.
+* `method` (str, optional): Vectorization method. Defaults to 'tfidf'. Choose from 'tfidf', 'count', 'hashing', 'pca', or 'svd'.
 * `**kwargs`: Additional arguments for the selected vectorization method.
 
 ## Contributing
