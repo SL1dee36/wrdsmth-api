@@ -5,8 +5,13 @@ from nltk.util import ngrams
 import langdetect
 
 nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
 nltk.download('stopwords')
+from numba import njit
 
+@njit
 def tokenize_text(text, method='word', language=None, n_gram_range=(1, 1),
                   regex_pattern=None, remove_stopwords=False, stopwords=None, lowercase=False,
                   custom_tokenizer=None):

@@ -5,7 +5,9 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.decomposition import PCA
 from sklearn.decomposition import TruncatedSVD
+from numba import njit
 
+@njit
 def vectorize_text(text, method='tfidf', **kwargs):
     """
     Converts text into a numerical vector.

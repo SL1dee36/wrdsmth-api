@@ -3,7 +3,9 @@
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import LancasterStemmer, RegexpStemmer
+from numba import njit
 
+@njit
 def stem_text(text, stemmer='porter', language='english'):
     """
     Reduces words in text to their base form (stem) using various stemmer algorithms.

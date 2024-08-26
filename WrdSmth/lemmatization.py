@@ -6,7 +6,9 @@ import nltk, spacy
 
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
+from numba import njit
 
+@njit
 def lemmatize_text(text, pos_tags=None, lemmatizer_type='wordnet', custom_lemmatizer=None, language='english'):
     """
     Lemmatizes text using various lemmatizers and POS tag options.
