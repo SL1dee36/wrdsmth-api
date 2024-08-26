@@ -12,13 +12,19 @@ pip install WrdSmth
 
 ## Key Features
 
-* **Cleaning:** Remove unwanted characters, HTML tags, punctuation, and extra whitespace.
-* **Tokenization:** Split text into individual words or sentences.
-* **Stemming:** Reduce words to their base form (stem).
-* **Lemmatization:** Convert words to their canonical form (lemma).
-* **Vectorization:** Transform text into numerical vectors using TF-IDF.
+* **Cleaning:** Remove unwanted characters, HTML tags, punctuation, and extra whitespace. Offers options for Unicode normalization, number removal, URL/email replacement, and custom regular expressions.
+* **Tokenization:** Split text into individual words or sentences. Supports language detection for accurate tokenization and stop word removal.  Provides options for N-gram generation, custom regex-based tokenization, and custom tokenizer functions.
+* **Stemming:** Reduce words to their base form (stem) using various algorithms including PorterStemmer, SnowballStemmer, LancasterStemmer, and RegexpStemmer. Supports multiple languages. 
+* **Lemmatization:** Convert words to their canonical form (lemma) using WordNetLemmatizer, SpaCy, or custom functions. Supports various languages.
+* **Vectorization:** Transform text into numerical vectors using methods like TF-IDF, CountVectorizer, HashingVectorizer, PCA, and TruncatedSVD.
 
 ## Usage
+
+**Before you start using WrdSmth, make sure you have the required NLTK resources downloaded:**
+
+```bash
+python -m nltk.downloader punkt wordnet averaged_perceptron_tagger stopwords punkt_tab
+```
 
 ### 1. Cleaning Text
 
@@ -31,8 +37,28 @@ text = "This is an example text with <br> HTML tags, punctuation!@#$%^&*(), numb
 
 # Clean text with all default options
 cleaned_text = clean_text(text)
-print(cleaned_text)
+print(f"Cleaned text (default): {cleaned_text}")
 # Output: this is an example text with html tags numbers 123 a url httpwwwexamplecom and an email exampleexamplecom
+
+# Clean text and remove numbers
+cleaned_text_no_numbers = clean_text(text, remove_numbers=True)
+print(f"Cleaned text (no numbers): {cleaned_text_no_numbers}")
+# Output: this is an example text with html tags a url httpwwwexamplecom and an email exampleexamplecom
+
+# Clean text, replace URLs and emails
+cleaned_text_replace = clean_text(text, replace_urls=True, replace_emails=True)
+print(f"Cleaned text (replaced URLs and emails): {cleaned_text_replace}")
+# Output: this is an example text with html tags numbers 123 a url <URL> and an email <EMAIL>
+
+# Clean text with a custom regex to remove specific words
+cleaned_text_custom = clean_text(text, custom_regex=r"example")
+print(f"Cleaned text (custom regex): {cleaned_text_custom}")
+# Output: this is an  text with html tags, punctuation!@#$%^&*(), numbers 123, a url https://www. .com and an email @ .com.
+
+text5 = "This is an example text with éàçü special characters."
+cleaned_text5 = clean_text(text5, normalize_unicode=True)
+print(f"Cleaned text (normalized Unicode): {cleaned_text5}")
+# Output: This is an example text with easu special characters. 
 ```
 
 **Parameters:**
@@ -51,7 +77,7 @@ print(cleaned_text)
 
 ### 2. Tokenization
 
-The `tokenize_text` function offers various tokenization methods:
+The `tokenize_text` function offers various tokenization methods, including language detection, N-gram generation, custom regex-based tokenization, and stop word removal.
 
 ```python
 from WrdSmth.tokenization import tokenize_text
@@ -60,13 +86,29 @@ text = "This is a sentence. This is another sentence."
 
 # Word tokenization
 word_tokens = tokenize_text(text, method='word')
-print(word_tokens)
+print(f"Word tokens: {word_tokens}")
 # Output: ['This', 'is', 'a', 'sentence', '.', 'This', 'is', 'another', 'sentence', '.']
 
 # Sentence tokenization
 sentence_tokens = tokenize_text(text, method='sentence')
-print(sentence_tokens)
+print(f"Sentence tokens: {sentence_tokens}")
 # Output: ['This is a sentence.', 'This is another sentence.']
+
+text3 = "This is a sentence."
+bigrams = tokenize_text(text3, method='word', n_gram_range=(2, 2))
+print(f"Bigrams: {bigrams}")
+# Output: [('This', 'is'), ('is', 'a'), ('a', 'sentence')]
+
+text4 = "This is a sentence with stop words."
+tokens_without_stopwords = tokenize_text(text4, method='word', remove_stopwords=True)
+print(f"Tokens without stop words: {tokens_without_stopwords}")
+# Output: ['This', 'sentence', 'stop', 'words', '.']
+
+# Tokenization for a different language (e.g., French)
+french_text = "Ceci est une phrase. C'est une autre phrase."
+french_word_tokens = tokenize_text(french_text, method='word', language='french')
+print(f"French word tokens: {french_word_tokens}")
+# Output: ['Ceci', 'est', 'une', 'phrase', '.', 'C', "'", 'est', 'une', 'autre', 'phrase', '.']
 ```
 
 **Parameters:**
@@ -84,7 +126,7 @@ print(sentence_tokens)
 
 ### 3. Stemming
 
-The `stem_text` function reduces words to their base form using different stemming algorithms:
+The `stem_text` function reduces words to their base form using different stemming algorithms.  It supports multiple languages and allows you to choose from various stemmers, including PorterStemmer, SnowballStemmer, LancasterStemmer, and a configurable RegexpStemmer.
 
 ```python
 from WrdSmth.stemming import stem_text
@@ -93,28 +135,28 @@ text = "This is an example of stemming words."
 
 # Using PorterStemmer
 stemmed_text_porter = stem_text(text, stemmer='porter')
-print(stemmed_text_porter)
+print(f"PorterStemmer: {stemmed_text_porter}")
 # Output: thi is an exampl of stem word.
 
 # Using SnowballStemmer for English
 stemmed_text_snowball_english = stem_text(text, stemmer='snowball', language='english')
-print(stemmed_text_snowball_english)
+print(f"SnowballStemmer (English): {stemmed_text_snowball_english}")
 # Output: thi is an exampl of stem word.
 
 # Using SnowballStemmer for French
 french_text = "C'est un exemple de stemming des mots."
 stemmed_text_snowball_french = stem_text(french_text, stemmer='snowball', language='french')
-print(stemmed_text_snowball_french)
+print(f"SnowballStemmer (French): {stemmed_text_snowball_french}")
 # Output: c'est un exempl de stem des mot.
 
 # Using LancasterStemmer
 stemmed_text_lancaster = stem_text(text, stemmer='lancaster')
-print(stemmed_text_lancaster)
+print(f"LancasterStemmer: {stemmed_text_lancaster}")
 # Output: thi is an exampl of stem word.
 
 # Using RegexpStemmer
 stemmed_text_regexp = stem_text(text, stemmer='regexp')
-print(stemmed_text_regexp)
+print(f"RegexpStemmer: {stemmed_text_regexp}")
 # Output: This is an exampl of stem word. 
 ```
 
@@ -127,7 +169,7 @@ print(stemmed_text_regexp)
 
 ### 4. Lemmatization
 
-The `lemmatize_text` function converts words to their canonical form, using various lemmatizers:
+The `lemmatize_text` function converts words to their canonical form, using various lemmatizers: WordNetLemmatizer, SpaCy, or custom functions.
 
 ```python
 from WrdSmth.lemmatization import lemmatize_text
@@ -136,15 +178,14 @@ text = "These are some running dogs."
 
 # Using WordNetLemmatizer
 lemmas_wordnet = lemmatize_text(text)
-print(lemmas_wordnet)
+print(f"WordNetLemmatizer: {lemmas_wordnet}")
 # Output: These be some run dog . 
 
 # Using SpaCy lemmatizer (for English)
 lemmas_spacy = lemmatize_text(text, lemmatizer_type='spacy', language='en_core_web_sm')
-print(lemmas_spacy)
+print(f"SpaCy Lemmatizer (English): {lemmas_spacy}")
 # Output: These be some run dog
 
-# Using a custom lemmatizer (example)
 def custom_lemmatizer(word):
     # Replace this with your custom logic
     if word.endswith("ing"):
@@ -153,7 +194,7 @@ def custom_lemmatizer(word):
         return word
 
 lemmas_custom = lemmatize_text(text, lemmatizer_type='custom', custom_lemmatizer=custom_lemmatizer)
-print(lemmas_custom)
+print(f"Custom Lemmatizer: {lemmas_custom}")
 # Output: These are some run dog. 
 ```
 
@@ -167,7 +208,7 @@ print(lemmas_custom)
 
 ### 5. Vectorization
 
-The `vectorize_text` function transforms text into numerical vectors using various vectorization methods:
+The `vectorize_text` function transforms text into numerical vectors using various vectorization methods: TF-IDF, CountVectorizer, HashingVectorizer, PCA, and TruncatedSVD.
 
 ```python
 from WrdSmth.vectorization import vectorize_text
@@ -176,8 +217,8 @@ text = ["This is the first document.", "This document is the second document."]
 
 # Using TF-IDF
 vectors_tfidf = vectorize_text(text, method='tfidf')
-print(vectors_tfidf)
-# Output:
+print(f"TF-IDF Vectorization: {vectors_tfidf}")
+# Output:  
 #  (0, 3)	0.44830048919
 #  (0, 6)	0.630078056744
 #  (0, 2)	0.630078056744
@@ -188,8 +229,8 @@ print(vectors_tfidf)
 
 # Using CountVectorizer
 vectors_count = vectorize_text(text, method='count')
-print(vectors_count)
-# Output:
+print(f"CountVectorizer: {vectors_count}")
+# Output:  
 #  (0, 3)	1
 #  (0, 6)	1
 #  (0, 2)	1
@@ -200,26 +241,26 @@ print(vectors_count)
 
 # Using HashingVectorizer
 vectors_hashing = vectorize_text(text, method='hashing')
-print(vectors_hashing)
+print(f"HashingVectorizer: {vectors_hashing}")
 # Output:  
 #  (0, 277648885)	1.0
 #  (0, 1780810300)	1.0
 #  (0, 1137508371)	1.0
 #  (1, 1137508371)	1.0
-#  (1, 277648885)  	1.0
+#  (1, 277648885)	1.0
 #  (1, 1780810300)	1.0
 #  (1, 996069450)	1.0
 
 # Using PCA (dimensionality reduction)
 vectors_pca = vectorize_text(text, method='pca', n_components=2)
-print(vectors_pca)
+print(f"PCA: {vectors_pca}")
 # Output:  
 #  [[ 0.24280967 -0.37643166]
 #  [-0.24280967  0.37643166]]
 
 # Using TruncatedSVD (dimensionality reduction)
 vectors_svd = vectorize_text(text, method='svd', n_components=2)
-print(vectors_svd)
+print(f"TruncatedSVD: {vectors_svd}")
 # Output:  
 #  [[-0.67175401  0.23931005]
 #  [ 0.67175401 -0.23931005]] 
