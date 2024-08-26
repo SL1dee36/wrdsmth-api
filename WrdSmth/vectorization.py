@@ -6,6 +6,9 @@ from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.decomposition import PCA
 from sklearn.decomposition import TruncatedSVD
 from numba import njit
+from initialization import init_nltk
+
+init_nltk()
 
 @njit
 def vectorize_text(text, method='tfidf', **kwargs):

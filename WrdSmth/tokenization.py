@@ -3,15 +3,10 @@
 import nltk
 from nltk.util import ngrams
 import langdetect
+from initialization import init_nltk
 
-nltk.download('punkt')
-nltk.download('punkt_tab')
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('stopwords')
-from numba import njit
+init_nltk()
 
-@njit
 def tokenize_text(text, method='word', language=None, n_gram_range=(1, 1),
                   regex_pattern=None, remove_stopwords=False, stopwords=None, lowercase=False,
                   custom_tokenizer=None):
@@ -33,6 +28,8 @@ def tokenize_text(text, method='word', language=None, n_gram_range=(1, 1),
         list: A list of tokens (words or sentences) depending on the chosen method.
     """
 
+    tokens = []  # Инициализируем tokens пустым списком
+
     if language is None:
         try:
             language = langdetect.detect(text)
@@ -45,7 +42,7 @@ def tokenize_text(text, method='word', language=None, n_gram_range=(1, 1),
             tokens = [token.lower() for token in tokens]
         if n_gram_range != (1, 1):
             n = n_gram_range[1]
-            tokens = list(ngrams(tokens, n))
+            tokens = list(nltk.ngrams(tokens, n))
     elif method == 'sentence':
         tokens = nltk.sent_tokenize(text, language=language)
     elif method == 'regex' and regex_pattern:

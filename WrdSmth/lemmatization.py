@@ -3,10 +3,10 @@
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 import nltk, spacy
-
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
 from numba import njit
+from initialization import init_nltk
+
+init_nltk()
 
 @njit
 def lemmatize_text(text, pos_tags=None, lemmatizer_type='wordnet', custom_lemmatizer=None, language='english'):
